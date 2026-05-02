@@ -1,0 +1,10 @@
+digraph g {
+  node [shape=record, height=0.1];
+  node2[label = "<f0>|6|<f1>|7|<f2>"];
+  node0[label = "{2: (2 2)|4: (4 4)}"];
+  "node2":f0 -> "node0";
+  node1[label = "{6: (6 6)}"];
+  "node2":f1 -> "node1";
+  node3[label = "{7: (7 7)|9: (9 9)}"];
+  "node2":f2 -> "node3";
+}
