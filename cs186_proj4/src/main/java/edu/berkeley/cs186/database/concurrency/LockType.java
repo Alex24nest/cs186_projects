@@ -22,18 +22,7 @@ public enum LockType {
             throw new NullPointerException("null lock type");
         }
         // TODO(proj4_part1): implement
-        // NL is compatible with any lock type
-        if (a == NL || b == NL) {
-            return true;
-        } else if (a == IS) {
-            return b != X;
-        } else if (a == IX) {
-            return b == IS || b == IX;
-        } else if (a == S) {
-            return b == IS || b == S;
-        } else if (b == SIX) {
-            return b == IS;
-        }
+
         return false;
     }
 
@@ -61,21 +50,11 @@ public enum LockType {
      * on a child.
      */
     public static boolean canBeParentLock(LockType parentLockType, LockType childLockType) {
-        // based on slide 71 from disc 8
         if (parentLockType == null || childLockType == null) {
             throw new NullPointerException("null lock type");
         }
         // TODO(proj4_part1): implement
-        if (childLockType == NL) {
-            return true;
-        } else if (parentLockType == IS) {
-            return childLockType == S || childLockType == IS;
-        } else if (parentLockType == IX) {
-            return true;
-        } else if (parentLockType == SIX) {
-            return childLockType == IX || childLockType == X;
-        }
-        // if parent is S or X, false for everything but NL
+
         return false;
     }
 
@@ -90,20 +69,7 @@ public enum LockType {
             throw new NullPointerException("null lock type");
         }
         // TODO(proj4_part1): implement
-        // is it false for if required is NL? since it shouldn't be able to do anything so it shouldn't have a lock with more capabilities
-    if (required == NL && substitute == NL) {
-        return true;
-    } else if (substitute == IS) {
-        return required == IS;
-    } else if (substitute == IX) {
-        return required == IS || required == IX;
-    } else if (substitute == S) {
-        return required == S;
-    } else if (substitute == SIX) {
-        return required == SIX || required == S || required == IX;
-    } else if (substitute == X) {
-        return required == X || required == S;
-    }
+
         return false;
     }
 

@@ -34,7 +34,7 @@ public abstract class JoinOperator extends QueryOperator {
 
     /**
      * Create a join operator that pulls tuples from leftSource and rightSource.
-     * Returns tuples (rows in table) for which leftColumnName and rightColumnName are equal.
+     * Returns tuples for which leftColumnName and rightColumnName are equal.
      *
      * @param leftSource the left source operator
      * @param rightSource the right source operator

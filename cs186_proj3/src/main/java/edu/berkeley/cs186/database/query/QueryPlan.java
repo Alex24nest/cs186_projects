@@ -577,35 +577,7 @@ public class QueryPlan {
         QueryOperator minOp = new SequentialScanOperator(this.transaction, table);
 
         // TODO(proj3_part2): implement
-        // calculate the cost of sequential scan
-        int seqIOCost = minOp.estimateIOCost();
-        int minCost = seqIOCost;
-        int i = -1;
-        // if there are any indices on any column of the table that we have a selection predicate on,
-        // you should calculate the estimated I/O cost of doing an index scan on that column
-        // list of indices of eligible selection predicates in this.selectPredicates
-        List<Integer> indexes = this.getEligibleIndexColumns(table);
-        QueryOperator minIndexOp;
-        QueryOperator returnOp = minOp;
-        // create an index scan operator for each col associated with each predicate
-        for (int index : indexes) {
-            // get the predicate from the index
-            SelectPredicate predicate = selectPredicates.get(index);
-            QueryOperator IndexOp = new IndexScanOperator(this.transaction, table, predicate.column, predicate.operator, predicate.value);
-            // is the value arg for the new index operator supposed to be predicate.value?
-            int indexIOCost = IndexOp.estimateIOCost();
-            // compare with the seq cost, update minCost if better
-            if (indexIOCost < minCost) {
-                minCost = indexIOCost;
-                minIndexOp = IndexOp; // update which operator could potentially be the one being returned
-                returnOp = IndexOp;
-                i = index;
-            }
-        }
-        // "push down" predicates (-1 means skip if it's seq scan, otherwise if index scan use the predicate chosen
-        returnOp = addEligibleSelections(returnOp, i);
-        // either return the minOp (sequential scan operator) or the index scan operator
-        return returnOp;
+        return minOp;
     }
 
     // Task 6: Join Selection //////////////////////////////////////////////////
@@ -674,45 +646,6 @@ public class QueryPlan {
         //      calculate the cheapest join with the new table (the one you
         //      fetched an operator for from pass1Map) and the previously joined
         //      tables. Then, update the result map if needed.
-        Set<Set<String>> tableNames = prevMap.keySet();
-        // iterate through all sets of joined tables
-        for (Set<String> setTables : tableNames) {
-            QueryOperator prevOp = prevMap.get(setTables);  // operator for the current set of tables
-            // iterate through all join predicates
-            for (JoinPredicate p : this.joinPredicates) {
-                String leftCol = p.leftColumn;
-                String leftTable = p.leftTable;
-                String rightCol = p.rightColumn;
-                String rightTable = p.rightTable;
-
-                QueryOperator leftOp;
-                QueryOperator rightOp;
-                Set<String> newSet;  // new set of tables after joining
-                QueryOperator joinOp;
-                // case 1: if setTables contains the leftTable but not the rightTable
-                if (setTables.contains(leftTable) && !setTables.contains(rightTable)) {
-                    rightOp = pass1Map.get(Collections.singleton(rightTable));  // scan operator for the rightTable
-                    newSet = new HashSet<>(setTables);
-                    joinOp = minCostJoinType(prevOp, rightOp, leftCol, rightCol);
-                    newSet.add(rightTable);
-                }
-                // case 2: if setTables contains the rightTable but not the leftTable
-                else if (setTables.contains(rightTable) && !setTables.contains(leftTable)) {
-                    leftOp = pass1Map.get(Collections.singleton(leftTable));  // scan operator for the leftTable
-                    newSet = new HashSet<>(setTables);
-                    joinOp = minCostJoinType(prevOp, leftOp, rightCol, leftCol);
-                    newSet.add(leftTable);
-                } else {
-                    // case 3: if neither of the cases match, skip this join predicate
-                    continue;
-                }
-                // calculate the lowest cost join using minCostJoinType
-                // update result map if the new join operator is better than any previous one
-                if (!result.containsKey(newSet) || result.get(newSet).estimateIOCost() > joinOp.estimateIOCost()) {
-                    result.put(newSet, joinOp);  // store the new set of tables with its lowest cost operator
-                }
-            }
-        }
         return result;
     }
 
@@ -762,30 +695,7 @@ public class QueryPlan {
         // Set the final operator to the lowest cost operator from the last
         // pass, add group by, project, sort and limit operators, and return an
         // iterator over the final operator.
-
-
-        int num_runs = tableNames.size();
-        Map<Set<String>, QueryOperator> cost_Map = new HashMap<>();
-        Map<Set<String>, QueryOperator> join_Map = cost_Map;
-
-        for (String table : tableNames) {
-            Set<String> table_Map = new HashSet<>();
-            table_Map.add(table);
-            cost_Map.put(table_Map, minCostSingleAccess(table));
-        }
-
-
-        for (int i = 0; i < num_runs-1; i++) {
-            join_Map = minCostJoins(join_Map, cost_Map);
-        }
-
-        finalOperator = minCostOperator(join_Map);
-
-        addGroupBy();
-        addProject();
-        addLimit();
-
-        return finalOperator.iterator();
+        return this.executeNaive(); // TODO(proj3_part2): Replace this!
     }
 
     // EXECUTE NAIVE ///////////////////////////////////////////////////////////

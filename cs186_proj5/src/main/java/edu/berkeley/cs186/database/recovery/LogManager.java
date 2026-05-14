@@ -17,7 +17,7 @@ import java.util.*;
 /**
  * The LogManager is responsible for interfacing with the log itself. The log is stored
  * on its own partition (partition 0). Since log pages are never deleted, the page number
- * is always increasing, so we assign LSNs as follows:
+ * is always increasing, so we assign LSNs as follow:
  * - page 1: [ LSN 10000, LSN 10040, LSN 10080, ...]
  * - page 2: [ LSN 20000, LSN 20030, LSN 20055, ...]
  * - page 3: [ LSN 30000, LSN 30047, LSN 30090, ...]

@@ -81,9 +81,8 @@ class InnerNode extends BPlusNode {
     @Override
     public LeafNode get(DataBox key) {
         // TODO(proj2): implement
-        int pointer_num = numLessThanEqual(key, this.keys);
-        BPlusNode curr_node = getChild(pointer_num);
-        return curr_node.get(key);
+
+        return null;
     }
 
     // See BPlusNode.getLeftmostLeaf.
@@ -91,48 +90,16 @@ class InnerNode extends BPlusNode {
     public LeafNode getLeftmostLeaf() {
         assert(children.size() > 0);
         // TODO(proj2): implement
-        BPlusNode curr_node = getChild(0);
-        return curr_node.getLeftmostLeaf();
+
+        return null;
     }
 
     // See BPlusNode.put.
     @Override
     public Optional<Pair<DataBox, Long>> put(DataBox key, RecordId rid) {
         // TODO(proj2): implement
-        int index = numLessThanEqual(key, keys);
-        BPlusNode child = getChild(index);
-        Optional<Pair<DataBox, Long>> split = child.put(key, rid);  // recursive call
 
-        if (!split.isPresent()) {
-            sync();
-            return Optional.empty();
-        }
-        // handle splitting
-        Pair<DataBox, Long> newChild = split.get();
-        DataBox childKey = newChild.getFirst();
-        Long childPointer = newChild.getSecond();
-
-        int innerIndex = numLessThanEqual(childKey, keys);
-        int order = this.metadata.getOrder();
-        children.add(innerIndex + 1, childPointer);
-        keys.add(innerIndex, childKey);
-
-        if (keys.size() <= 2 * order) {
-            //don't split
-            sync();
-            return Optional.empty();
-        } else {
-            //do split
-            DataBox keySplitting = keys.get(order);
-            List<DataBox> newKeys = keys.subList(order + 1, keys.size());
-            List<Long> newChildren = children.subList(order + 1, children.size());
-
-            keys = new ArrayList<>(keys.subList(0, order));
-            children = new ArrayList<>(children.subList(0, order + 1));
-            InnerNode newNode = new InnerNode(metadata, bufferManager, newKeys, newChildren, treeContext);
-            sync();
-            return Optional.of(new Pair<>(keySplitting, newNode.getPage().getPageNum()));
-        }
+        return Optional.empty();
     }
 
     // See BPlusNode.bulkLoad.
@@ -140,38 +107,7 @@ class InnerNode extends BPlusNode {
     public Optional<Pair<DataBox, Long>> bulkLoad(Iterator<Pair<DataBox, RecordId>> data,
             float fillFactor) {
         // TODO(proj2): implement
-        int order = metadata.getOrder();
 
-        while (data.hasNext()) {
-            BPlusNode child = getChild(children.size() - 1);
-            Optional<Pair<DataBox, Long>> node = child.bulkLoad(data, fillFactor);
-
-            if (!node.isPresent()) {
-                sync();
-                return Optional.empty();
-            } else {
-                if (keys.size() < 2 * order) {
-                    keys.add(node.get().getFirst());
-                    children.add(node.get().getSecond());
-                    sync();
-                } else {
-                    keys.add(node.get().getFirst());
-                    children.add(node.get().getSecond());
-
-                    DataBox keySplitter = keys.get(order);
-                    List<DataBox> newKeys = keys.subList(order + 1, keys.size());
-                    List<Long> newChildren = children.subList(order + 1, children.size());
-
-                    keys = keys.subList(0, order);
-                    children = children.subList(0, order + 1);
-                    InnerNode newNode = new InnerNode(metadata, bufferManager, newKeys, newChildren, treeContext);
-                    sync();
-                    Pair<DataBox, Long> pair = new Pair<>(keySplitter, newNode.getPage().getPageNum());
-
-                    return Optional.of(pair);
-                }
-            }
-        }
         return Optional.empty();
     }
 
@@ -179,12 +115,8 @@ class InnerNode extends BPlusNode {
     @Override
     public void remove(DataBox key) {
         // TODO(proj2): implement
-//        LeafNode leaf = this.get(key);
-//        leaf.remove(key);
-//        sync();
-        int i = numLessThanEqual(key, keys);
-        BPlusNode childNode = getChild(i);
-        childNode.remove(key);
+
+        return;
     }
 
     // Helpers /////////////////////////////////////////////////////////////////

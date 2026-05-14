@@ -88,19 +88,6 @@ public class BNLJOperator extends JoinOperator {
          */
         private void fetchNextLeftBlock() {
             // TODO(proj3_part1): implement
-            if (leftSourceIterator.hasNext()) {
-                // get block of b-2 pages from left source
-                this.leftBlockIterator = getBlockIterator(leftSourceIterator, getLeftSource().getSchema(), numBuffers - 2);
-                this.leftBlockIterator.markNext();  // mark start of block
-                if (this.leftBlockIterator.hasNext()) {
-                    this.leftRecord = this.leftBlockIterator.next();
-                } else {
-                    this.leftRecord = null;
-                }
-            } else {
-                this.leftBlockIterator = null;
-                this.leftRecord = null;
-            }
         }
 
         /**
@@ -116,12 +103,6 @@ public class BNLJOperator extends JoinOperator {
          */
         private void fetchNextRightPage() {
             // TODO(proj3_part1): implement
-            if (rightSourceIterator.hasNext()) {
-                this.rightPageIterator = getBlockIterator(rightSourceIterator, getRightSource().getSchema(), 1);
-                this.rightPageIterator.markNext();  // mark start of pg
-            } else {
-                this.rightPageIterator = null;
-            }
         }
 
         /**
@@ -134,40 +115,7 @@ public class BNLJOperator extends JoinOperator {
          */
         private Record fetchNextRecord() {
             // TODO(proj3_part1): implement
-            while (true) {
-                // case 1
-                if (this.rightPageIterator != null && this.rightPageIterator.hasNext()) {
-                    Record rightRecord = this.rightPageIterator.next();
-                    if (compare(leftRecord, rightRecord) == 0) {
-                        // return concatenated record if join condition is satisfied
-                        return leftRecord.concat(rightRecord);
-                    }
-                }
-                // case 2
-                else if (this.leftBlockIterator != null && this.leftBlockIterator.hasNext()) {
-                    this.leftRecord = this.leftBlockIterator.next();
-                    this.rightPageIterator.reset();  // reset to the start of current pg
-                }
-                // case 3
-                else if (this.rightSourceIterator.hasNext()) {
-                    this.fetchNextRightPage();
-                    if (this.leftBlockIterator != null) {
-                        this.leftBlockIterator.reset();  // reset left block to the start
-                        if (this.leftBlockIterator.hasNext()) {
-                            this.leftRecord = this.leftBlockIterator.next();
-                        }
-                    }
-                }
-                // case 4
-                else if (this.leftSourceIterator.hasNext()) {
-                    this.fetchNextLeftBlock();
-                    this.rightSourceIterator.reset();  // reset to the beginning
-                    this.fetchNextRightPage();
-                } else {
-                    // no more records to process
-                    return null;
-                }
-            }
+            return null;
         }
 
         /**
